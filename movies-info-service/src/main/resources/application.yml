@@ -1,0 +1,40 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active:
+      - dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - prod
+  data:
+    mongodb:
+      uri: mongodb+srv://movies-app-user:7j0AkXMBnASFhgbZ@cluster0.k7nei.mongodb.net/moviesdb?retryWrites=true&w=majority
+      authentication-database:
+  application:
+    name: movies-info-service
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - dev
+  data:
+    mongodb:
+      uri: mongodb+srv://movies-app-user-dev:FINQJg4JGo59vtNY@cluster0.k7nei.mongodb.net/moviesdb-dev?retryWrites=true&w=majority
+  application:
+    name: movies-info-service
