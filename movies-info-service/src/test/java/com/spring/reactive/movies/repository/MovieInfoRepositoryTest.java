@@ -67,4 +67,44 @@ class MovieInfoRepositoryTest {
         .assertNext(movie -> assertEquals("The Dark Knight Rises", movie.getTitle()))
         .verifyComplete();
   }
+
+  @Test
+  void testSaveMovieInfo() {
+    final Mono<MovieInfo> movieInfo =
+        movieInfoRepository.save(new MovieInfo().setTitle("Interstellar").setYear(2014));
+    StepVerifier.create(movieInfo)
+        .assertNext(
+            movie -> {
+              assertNotNull(movie.getMovieInfoId());
+              assertEquals("Interstellar", movie.getTitle());
+            })
+        .verifyComplete();
+  }
+
+  @Test
+  void testUpdateMovieInfo() {
+    final MovieInfo movieInfo = movieInfoRepository.findById("movie-3").block();
+
+    assert movieInfo != null;
+    movieInfo.setCast(List.of("Christian Bale", "Michael Caine"));
+
+    Mono<MovieInfo> updatedMovieInfo = movieInfoRepository.save(movieInfo);
+
+    StepVerifier.create(updatedMovieInfo)
+        .assertNext(
+            movie -> {
+              assertEquals("The Dark Knight Rises", movie.getTitle());
+              assertEquals(List.of("Christian Bale", "Michael Caine"), movie.getCast());
+            })
+        .verifyComplete();
+  }
+
+  @Test
+  void deleteUpdateMovieInfo() {
+    movieInfoRepository.deleteById("movie-3").block();
+
+    final Mono<MovieInfo> movieInfo = movieInfoRepository.findById("movie-3");
+
+    StepVerifier.create(movieInfo).expectNextCount(0).verifyComplete();
+  }
 }
