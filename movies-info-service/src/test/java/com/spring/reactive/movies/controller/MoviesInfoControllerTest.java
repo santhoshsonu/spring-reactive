@@ -26,12 +26,12 @@ import reactor.core.publisher.Mono;
 
 @WebFluxTest(
     controllers = MoviesInfoController.class,
-    properties = "de.flapdoodle.mongodb.embedded.version=5.0.5")
+    properties = "de.flapdoodle.mongodb.embedded.version=6.0.2")
 @AutoConfigureDataMongo
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @Slf4j
-public class MoviesInfoControllerTest {
+class MoviesInfoControllerTest {
   final String BASE_URL = "/v1/movies-info";
 
   @MockBean MoviesInfoService moviesInfoServiceMock;
@@ -86,7 +86,7 @@ public class MoviesInfoControllerTest {
   @Test
   void addNewMovie_validations() {
     // GIVEN
-    MovieInfo movieInfo = new MovieInfo();
+    MovieInfo movieInfo = new MovieInfo().setCast(List.of(""));
 
     // THEN
     webTestClient
@@ -105,6 +105,7 @@ public class MoviesInfoControllerTest {
               assertEquals(HttpStatus.BAD_REQUEST, body.getStatus());
               assertEquals("Title is required", body.getErrors().get("title"));
               assertEquals("Year is required", body.getErrors().get("year"));
+              assertEquals("Cast is required", body.getErrors().get("cast[0]"));
             });
   }
 

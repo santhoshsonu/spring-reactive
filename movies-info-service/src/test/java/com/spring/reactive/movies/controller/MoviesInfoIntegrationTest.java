@@ -17,7 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = "de.flapdoodle.mongodb.embedded.version=5.0.5")
+    properties = "de.flapdoodle.mongodb.embedded.version=6.0.2")
 @ActiveProfiles("test")
 @AutoConfigureWebTestClient
 class MoviesInfoIntegrationTest {
@@ -148,6 +148,28 @@ class MoviesInfoIntegrationTest {
                   List.of("Matthew McConaughey", "Anne Hathaway"), updatedMovieInfo.getCast());
               assertEquals(LocalDate.parse("2014-11-11"), updatedMovieInfo.getReleaseDate());
             });
+  }
+
+  @Test
+  void updateMovie_notFound() {
+    // WHEN
+    final String movieId = "movie-not-found";
+    MovieInfo movieInfo =
+        new MovieInfo()
+            .setMovieInfoId("movie-3")
+            .setTitle("Interstellar")
+            .setYear(2014)
+            .setCast(List.of("Matthew McConaughey", "Anne Hathaway"))
+            .setReleaseDate(LocalDate.parse("2014-11-11"));
+
+    // THEN
+    webTestClient
+        .put()
+        .uri(BASE_URL + "/{id}", movieId)
+        .bodyValue(movieInfo)
+        .exchange()
+        .expectStatus()
+        .isNotFound();
   }
 
   @Test

@@ -4,12 +4,16 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
 public class FluxMonGeneratorService {
+  private final Random random = new Random();
+
   public Flux<String> namesFlux() {
     return Flux.fromIterable(List.of("alex", "ben", "carl", "daniel"))
         .log(); // log each and every event happening between publisher and subscriber communication
@@ -46,7 +50,7 @@ public class FluxMonGeneratorService {
         .flatMap(
             s ->
                 Flux.fromArray(s.toUpperCase().split(""))
-                    .delayElements(Duration.ofMillis(new Random().nextInt(1000))))
+                    .delayElements(Duration.ofMillis(random.nextInt(1000))))
         .log();
   }
 
@@ -55,18 +59,18 @@ public class FluxMonGeneratorService {
         .concatMap(
             s ->
                 Flux.fromArray(s.toUpperCase().split(""))
-                    .delayElements(Duration.ofMillis(new Random().nextInt(1000))))
+                    .delayElements(Duration.ofMillis(random.nextInt(1000))))
         .log();
   }
 
   public Flux<String> namesFluxTransform(int strLength) {
-    Function<Flux<String>, Flux<String>> filterMap =
+    UnaryOperator<Flux<String>> filterMap =
         name -> name.filter(s -> s.length() > strLength).map(String::toUpperCase);
     return namesFlux().transform(filterMap).defaultIfEmpty("default").log();
   }
 
   public Flux<String> namesFluxTransformSwitchIfEmpty(int strLength) {
-    Function<Flux<String>, Flux<String>> filterMap =
+    UnaryOperator<Flux<String>> filterMap =
         name -> name.filter(s -> s.length() > strLength).map(String::toUpperCase);
 
     Flux<String> defaultFlux = Flux.just("default").transform(filterMap);
@@ -114,14 +118,15 @@ public class FluxMonGeneratorService {
 
   public static void main(String[] args) {
     FluxMonGeneratorService service = new FluxMonGeneratorService();
+    final String MSG_FORMAT = "Name: {}";
 
     log.info("Flux names ::");
-    service.namesFlux().subscribe(name -> log.info("Name: " + name));
+    service.namesFlux().subscribe(name -> log.info(MSG_FORMAT, name));
 
     log.info("Flux flatmap names ::");
-    service.namesFluxFlatMap().subscribe(name -> log.info("Name: " + name));
+    service.namesFluxFlatMap().subscribe(name -> log.info(MSG_FORMAT, name));
 
     log.info("Mono name ::");
-    service.namesMono().subscribe(name -> log.info("Name: " + name));
+    service.namesMono().subscribe(name -> log.info(MSG_FORMAT, name));
   }
 }

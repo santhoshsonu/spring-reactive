@@ -3,7 +3,6 @@ package com.spring.reactive.movies.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Data;
@@ -26,8 +25,7 @@ public class MovieInfo {
   @Positive(message = "Year must be positive number")
   private Integer year;
 
-  @Size(min = 1, message = "Cast is required")
-  private List<String> cast;
+  private List<@NotBlank(message = "Cast is required") String> cast;
 
   private LocalDate releaseDate;
 }

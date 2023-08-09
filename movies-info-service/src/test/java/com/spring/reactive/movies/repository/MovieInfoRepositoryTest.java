@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @AutoConfigureDataMongo
-@SpringBootTest(properties = "de.flapdoodle.mongodb.embedded.version=5.0.5")
+@SpringBootTest(properties = "de.flapdoodle.mongodb.embedded.version=6.0.2")
 @ActiveProfiles("test")
 class MovieInfoRepositoryTest {
   @Autowired MovieInfoRepository movieInfoRepository;

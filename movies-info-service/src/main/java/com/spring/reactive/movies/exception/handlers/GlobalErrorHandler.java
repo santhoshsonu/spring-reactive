@@ -20,6 +20,8 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 @RestControllerAdvice
 public class GlobalErrorHandler {
 
+  private static final String DEFAULT_MESSAGE = "invalid value";
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> onMethodArgumentNotValidException(
       MethodArgumentNotValidException ex) {
@@ -33,7 +35,7 @@ public class GlobalErrorHandler {
                     fieldError ->
                         nonNull(fieldError.getDefaultMessage())
                             ? fieldError.getDefaultMessage()
-                            : "invalid value",
+                            : DEFAULT_MESSAGE,
                     (a, b) -> a + ", " + b)));
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
@@ -48,7 +50,7 @@ public class GlobalErrorHandler {
                 Collectors.toUnmodifiableMap(
                     violation -> violation.getPropertyPath().toString(),
                     violation ->
-                        nonNull(violation.getMessage()) ? violation.getMessage() : "invalid value",
+                        nonNull(violation.getMessage()) ? violation.getMessage() : DEFAULT_MESSAGE,
                     (a, b) -> a + ", " + b)));
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
@@ -62,7 +64,7 @@ public class GlobalErrorHandler {
                 Collectors.toUnmodifiableMap(
                     FieldError::getField,
                     fe ->
-                        nonNull(fe.getDefaultMessage()) ? fe.getDefaultMessage() : "invalid value",
+                        nonNull(fe.getDefaultMessage()) ? fe.getDefaultMessage() : DEFAULT_MESSAGE,
                     (a, b) -> a + ", " + b)));
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
