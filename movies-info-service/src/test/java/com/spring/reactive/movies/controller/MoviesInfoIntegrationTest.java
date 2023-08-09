@@ -117,6 +117,13 @@ class MoviesInfoIntegrationTest {
   }
 
   @Test
+  void getMovieById_notFound() {
+    // WHEN
+    final String movieId = "movie-not-found";
+    webTestClient.get().uri(BASE_URL + "/{id}", movieId).exchange().expectStatus().isNotFound();
+  }
+
+  @Test
   void updateMovie() {
     // WHEN
     final String movieId = "movie-3";
