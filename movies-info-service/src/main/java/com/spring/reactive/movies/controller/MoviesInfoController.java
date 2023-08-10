@@ -1,5 +1,7 @@
 package com.spring.reactive.movies.controller;
 
+import static java.util.Objects.nonNull;
+
 import com.spring.reactive.movies.model.MovieInfo;
 import com.spring.reactive.movies.service.MoviesInfoService;
 import jakarta.validation.Valid;
@@ -22,7 +24,20 @@ public class MoviesInfoController {
   }
 
   @GetMapping({"", "/"})
-  public Flux<MovieInfo> getAllMovies() {
+  public Flux<MovieInfo> getAllMovies(
+      @RequestParam(value = "year", required = false) Integer year,
+      @RequestParam(value = "name", required = false) String name) {
+    boolean filterByYear = nonNull(year);
+    boolean filterByName = nonNull(name);
+    if (filterByYear && filterByName) {
+      return moviesInfoService.getMoviesByNameAndYear(name, year);
+    }
+    if (filterByName) {
+      return moviesInfoService.getMoviesByName(name);
+    }
+    if (filterByYear) {
+      return moviesInfoService.getMoviesByYear(year);
+    }
     return moviesInfoService.getAllMovies();
   }
 

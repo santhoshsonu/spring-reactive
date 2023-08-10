@@ -69,6 +69,36 @@ class MovieInfoRepositoryTest {
   }
 
   @Test
+  void testFindByYear() {
+    final Flux<MovieInfo> movieInfo = movieInfoRepository.findByYear(2012);
+    StepVerifier.create(movieInfo)
+        .assertNext(movie -> assertEquals("The Dark Knight Rises", movie.getTitle()))
+        .verifyComplete();
+  }
+
+  @Test
+  void testFindByName() {
+    final Flux<MovieInfo> movieInfo = movieInfoRepository.findByTitle("The Dark Knight");
+    StepVerifier.create(movieInfo)
+        .assertNext(movie -> assertEquals("The Dark Knight", movie.getTitle()))
+        .verifyComplete();
+  }
+
+  @Test
+  void testFindByNameAndYear() {
+    final Flux<MovieInfo> movieInfo =
+        movieInfoRepository.findByTitleAndYear("The Dark Knight", 2008);
+    StepVerifier.create(movieInfo)
+        .assertNext(
+            movie -> {
+              assertEquals("The Dark Knight", movie.getTitle());
+              assertEquals(2008, movie.getYear());
+            })
+        .expectNextCount(0)
+        .verifyComplete();
+  }
+
+  @Test
   void testSaveMovieInfo() {
     final Mono<MovieInfo> movieInfo =
         movieInfoRepository.save(new MovieInfo().setTitle("Interstellar").setYear(2014));

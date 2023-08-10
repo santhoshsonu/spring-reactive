@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -91,6 +92,75 @@ class MoviesInfoIntegrationTest {
   void getAllMovies() {
     // WHEN
     webTestClient.get().uri(BASE_URL).exchange().expectBodyList(MovieInfo.class).hasSize(3);
+  }
+
+  @Test
+  void getMoviesByYear() {
+    // WHEN
+    final String uri =
+        UriComponentsBuilder.fromUriString(BASE_URL)
+            .queryParam("year", 2012)
+            .buildAndExpand()
+            .toUriString();
+    webTestClient.get().uri(uri).exchange().expectBodyList(MovieInfo.class).hasSize(1);
+  }
+
+  @Test
+  void getMovieByName() {
+    // WHEN
+    final String uri =
+        UriComponentsBuilder.fromUriString(BASE_URL)
+            .queryParam("name", "Batman Begins")
+            .buildAndExpand()
+            .toUriString();
+    webTestClient
+        .get()
+        .uri(uri)
+        .exchange()
+        .expectBodyList(MovieInfo.class)
+        .consumeWith(
+            result -> {
+              List<MovieInfo> movieInfoList = result.getResponseBody();
+              assertNotNull(movieInfoList);
+              assertEquals(1, movieInfoList.size());
+              assertEquals("Batman Begins", movieInfoList.get(0).getTitle());
+              assertEquals(2005, movieInfoList.get(0).getYear());
+            });
+  }
+
+  @Test
+  void getMoviesByNameAndYear() {
+    // WHEN
+    final String uri =
+        UriComponentsBuilder.fromUriString(BASE_URL)
+            .queryParam("year", 2008)
+            .queryParam("name", "The Dark Knight")
+            .buildAndExpand()
+            .toUriString();
+    webTestClient
+        .get()
+        .uri(uri)
+        .exchange()
+        .expectBodyList(MovieInfo.class)
+        .consumeWith(
+            result -> {
+              List<MovieInfo> movieInfoList = result.getResponseBody();
+              assertNotNull(movieInfoList);
+              assertEquals(1, movieInfoList.size());
+              assertEquals("The Dark Knight", movieInfoList.get(0).getTitle());
+              assertEquals(2008, movieInfoList.get(0).getYear());
+            });
+  }
+
+  @Test
+  void getMovieByName_notFound() {
+    // WHEN
+    final String uri =
+        UriComponentsBuilder.fromUriString(BASE_URL)
+            .queryParam("name", "Superman")
+            .buildAndExpand()
+            .toUriString();
+    webTestClient.get().uri(uri).exchange().expectBodyList(MovieInfo.class).hasSize(0);
   }
 
   @Test
